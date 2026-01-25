@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="40.64mm" height="128.5mm" viewBox="0 0 40.64 128.5">
+  <!-- 8HP panel: 40.64mm x 128.5mm -->
+
+  <!-- Background -->
+  <rect x="0" y="0" width="40.64" height="128.5" fill="#1a1a1a"/>
+
+  <!-- Panel border -->
+  <rect x="0.5" y="0.5" width="39.64" height="127.5" fill="none" stroke="#333333" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="20.32" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="3.5" fill="#79d8b9" font-weight="bold">ACID GEN</text>
+
+  <!-- Row 1 labels -->
+  <text x="10.16" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">DENSITY</text>
+  <text x="30.48" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">LENGTH</text>
+
+  <!-- Row 2 labels -->
+  <text x="10.16" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SPREAD</text>
+  <text x="30.48" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SCALE</text>
+
+  <!-- Row 3 labels -->
+  <text x="5.16" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ACC</text>
+  <text x="15.16" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">SLD</text>
+  <text x="25.48" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ROOT</text>
+  <text x="35.48" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">OCT</text>
+
+  <!-- Generate label -->
+  <text x="20.32" y="73" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#79d8b9">GEN</text>
+
+  <!-- Input labels -->
+  <text x="5.16" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">CLK</text>
+  <text x="15.16" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">RST</text>
+  <text x="20.32" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">GEN</text>
+
+  <!-- Output labels -->
+  <text x="5.16" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">V/O</text>
+  <text x="15.16" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">GATE</text>
+  <text x="25.48" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ACC</text>
+  <text x="35.48" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">SLD</text>
+
+  <!-- Decorative line -->
+  <line x1="3" y1="86" x2="37.64" y2="86" stroke="#333333" stroke-width="0.5"/>
+
+  <!-- Brand -->
+  <text x="20.32" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#525252">Vulpes79</text>
+</svg>
