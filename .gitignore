@@ -1,0 +1,7 @@
+# Build artifacts
+build/
+dist/
+plugin.dylib
+
+# macOS
+.DS_Store
