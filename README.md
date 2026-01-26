@@ -28,10 +28,6 @@ A compact and powerful acid-style sequence generator module for VCV Rack, offeri
 
 ## Installation
 
-### VCV Library (Recommended)
-
-The easiest way to install Acid Generator Mini is directly through the VCV Rack application's plugin manager. Search for "Acid Generator Mini" and click "Install".
-
 ### Manual Installation
 
 1.  Locate your VCV Rack user folder:
