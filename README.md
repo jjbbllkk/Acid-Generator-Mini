@@ -28,15 +28,16 @@ A compact and powerful acid-style sequence generator module for VCV Rack, offeri
 
 ## Installation
 
-### Manual Installation
+To install Acid Generator Mini:
 
-1.  Locate your VCV Rack user folder:
+1.  **Download the latest `.vcvplugin` file** from the [GitHub Releases page](https://github.com/jjbbllkk/Acid-Generator-Mini/releases).
+2.  Locate your VCV Rack user folder:
     *   **macOS:** `~/Documents/Rack2/`
     *   **Windows:** `My Documents\Rack2\`
     *   **Linux:** `~/.Rack2/`
-2.  Navigate into the `plugins/` subdirectory within your VCV Rack user folder.
-3.  Copy the `AcidGeneratorMini-<version>-<platform>.vcvplugin` file (e.g., `AcidGeneratorMini-2.0.0-mac-arm64.vcvplugin`) into this directory.
-4.  Restart VCV Rack.
+3.  Navigate into the `plugins/` subdirectory within your VCV Rack user folder.
+4.  Copy the downloaded `AcidGeneratorMini-<version>-<platform>.vcvplugin` file into this directory.
+5.  Restart VCV Rack.
 
 ## Building from Source
 
