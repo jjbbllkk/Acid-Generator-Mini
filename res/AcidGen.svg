@@ -1,47 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="40.64mm" height="128.5mm" viewBox="0 0 40.64 128.5">
-  <!-- 8HP panel: 40.64mm x 128.5mm -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="60.96mm" height="128.5mm" viewBox="0 0 60.96 128.5">
+  <!-- 12HP panel: 60.96mm x 128.5mm -->
 
   <!-- Background -->
-  <rect x="0" y="0" width="40.64" height="128.5" fill="#1a1a1a"/>
+  <rect x="0" y="0" width="60.96" height="128.5" fill="#1a1a1a"/>
 
   <!-- Panel border -->
-  <rect x="0.5" y="0.5" width="39.64" height="127.5" fill="none" stroke="#333333" stroke-width="1"/>
+  <rect x="0.5" y="0.5" width="59.96" height="127.5" fill="none" stroke="#333333" stroke-width="1"/>
 
   <!-- Title -->
-  <text x="20.32" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="3.5" fill="#79d8b9" font-weight="bold">ACID GEN</text>
+  <text x="30.48" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="3.5" fill="#79d8b9" font-weight="bold">ACID GEN MINI</text>
 
-  <!-- Row 1 labels -->
-  <text x="10.16" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">DENSITY</text>
-  <text x="30.48" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">LENGTH</text>
+  <!-- Row 1 labels (main knobs) -->
+  <text x="12" y="13" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">DENSITY</text>
+  <text x="30.48" y="13" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SPREAD</text>
+  <text x="49" y="13" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">LENGTH</text>
 
-  <!-- Row 2 labels -->
-  <text x="10.16" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SPREAD</text>
-  <text x="30.48" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SCALE</text>
+  <!-- Row 2 labels (small knobs) -->
+  <text x="12" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">ACC</text>
+  <text x="24" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SLD</text>
+  <text x="37" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">ROOT</text>
+  <text x="49" y="31" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SCALE</text>
 
-  <!-- Row 3 labels -->
-  <text x="5.16" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ACC</text>
-  <text x="15.16" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">SLD</text>
-  <text x="25.48" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ROOT</text>
-  <text x="35.48" y="48" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">OCT</text>
+  <!-- Octave section -->
+  <text x="8" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">-</text>
+  <text x="20" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">+</text>
+  <text x="14" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">OCT</text>
+  <!-- Octave LED labels -->
+  <text x="30" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.5" fill="#4f4f4f">-2</text>
+  <text x="35.5" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.5" fill="#4f4f4f">-1</text>
+  <text x="41" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.5" fill="#4f4f4f">0</text>
+  <text x="46.5" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.5" fill="#4f4f4f">+1</text>
+  <text x="52" y="87" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.5" fill="#4f4f4f">+2</text>
 
-  <!-- Generate label -->
-  <text x="20.32" y="73" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#79d8b9">GEN</text>
+  <!-- Divider line above I/O -->
+  <line x1="4" y1="91" x2="56.96" y2="91" stroke="#333333" stroke-width="0.5"/>
 
   <!-- Input labels -->
-  <text x="5.16" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">CLK</text>
-  <text x="15.16" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">RST</text>
-  <text x="20.32" y="88" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">GEN</text>
+  <text x="10" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">CLK</text>
+  <text x="24" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">RST</text>
+  <text x="38" y="93" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">GEN</text>
 
   <!-- Output labels -->
-  <text x="5.16" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">V/O</text>
-  <text x="15.16" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">GATE</text>
-  <text x="25.48" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">ACC</text>
-  <text x="35.48" y="104" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.8" fill="#6f6f6f">SLD</text>
-
-  <!-- Decorative line -->
-  <line x1="3" y1="86" x2="37.64" y2="86" stroke="#333333" stroke-width="0.5"/>
+  <text x="10" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">V/OCT</text>
+  <text x="24" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">GATE</text>
+  <text x="38" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">ACC</text>
+  <text x="51" y="108" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#6f6f6f">SLIDE</text>
 
   <!-- Brand -->
-  <text x="20.32" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#525252">Vulpes79</text>
+  <text x="30.48" y="125" text-anchor="middle" font-family="Arial, sans-serif" font-size="2" fill="#525252">Vulpes79</text>
 </svg>

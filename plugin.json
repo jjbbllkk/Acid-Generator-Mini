@@ -1,6 +1,6 @@
 {
-  "slug": "AcidGenerator4ms",
-  "name": "Acid Generator 4ms",
+  "slug": "AcidGeneratorMini",
+  "name": "Acid Generator Mini",
   "version": "2.0.0",
   "license": "MIT",
   "brand": "Vulpes79",
@@ -14,9 +14,9 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "AcidGen",
-      "name": "Acid Generator",
-      "description": "Compact TB-303 style pattern sequencer for 4ms Metamodule - no piano roll",
+      "slug": "AcidGenMini",
+      "name": "Acid Generator Mini",
+      "description": "Compact TB-303 style pattern sequencer for 4ms Metamodule",
       "tags": [
         "Sequencer",
         "Random"

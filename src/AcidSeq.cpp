@@ -15,6 +15,8 @@ struct AcidSeq : Module {
         PARAM_SCALE,
         PARAM_ROOT_NOTE,
         PARAM_OCTAVE,
+        PARAM_OCTAVE_UP,
+        PARAM_OCTAVE_DOWN,
         PARAMS_LEN
     };
 
@@ -36,6 +38,7 @@ struct AcidSeq : Module {
     enum LightIds {
         LIGHT_GENERATE,
         ENUMS(LIGHT_STEP, 16),  // Step indicator lights
+        ENUMS(LIGHT_OCTAVE, 5), // Octave indicator lights (-2 to +2)
         LIGHTS_LEN
     };
 
@@ -44,6 +47,8 @@ struct AcidSeq : Module {
     dsp::SchmittTrigger resetTrigger;
     dsp::SchmittTrigger generateTrigger;
     dsp::SchmittTrigger generateButtonTrigger;
+    dsp::SchmittTrigger octaveUpTrigger;
+    dsp::SchmittTrigger octaveDownTrigger;
 
     // Gate pulse generator (for timed gate output)
     dsp::PulseGenerator gatePulse;
@@ -110,6 +115,10 @@ struct AcidSeq : Module {
         // Base octave offset
         configParam(PARAM_OCTAVE, -2.f, 2.f, 0.f, "Octave");
         paramQuantities[PARAM_OCTAVE]->snapEnabled = true;
+
+        // Octave buttons
+        configButton(PARAM_OCTAVE_UP, "Octave Up");
+        configButton(PARAM_OCTAVE_DOWN, "Octave Down");
 
         // Generate button
         configButton(PARAM_GENERATE, "Generate Pattern");
@@ -205,6 +214,20 @@ struct AcidSeq : Module {
 
         if (generateTriggered) {
             generateNewPattern();
+        }
+
+        // --- Handle Octave Buttons ---
+        if (octaveUpTrigger.process(params[PARAM_OCTAVE_UP].getValue() > 0.f)) {
+            float currentOctave = params[PARAM_OCTAVE].getValue();
+            if (currentOctave < 2.f) {
+                params[PARAM_OCTAVE].setValue(currentOctave + 1.f);
+            }
+        }
+        if (octaveDownTrigger.process(params[PARAM_OCTAVE_DOWN].getValue() > 0.f)) {
+            float currentOctave = params[PARAM_OCTAVE].getValue();
+            if (currentOctave > -2.f) {
+                params[PARAM_OCTAVE].setValue(currentOctave - 1.f);
+            }
         }
 
         // --- Handle Reset Trigger ---
@@ -338,6 +361,12 @@ struct AcidSeq : Module {
             } else {
                 lights[LIGHT_STEP + i].setBrightness(0.f);
             }
+        }
+
+        // Octave indicator lights (-2 to +2, index 0-4)
+        int octaveIndex = octaveOffset + 2;  // Convert -2..+2 to 0..4
+        for (int i = 0; i < 5; i++) {
+            lights[LIGHT_OCTAVE + i].setBrightness(i == octaveIndex ? 1.f : 0.1f);
         }
     }
 
@@ -500,7 +529,235 @@ struct AcidSeq : Module {
 };
 
 //-----------------------------------------------------------------------------
-// Module Widget (Panel UI) - Compact 8HP version for 4ms Metamodule
+// Pattern Visualization Widget - Shows note bars, accent/slide indicators
+//-----------------------------------------------------------------------------
+
+struct PatternDisplay : widget::OpaqueWidget {
+    AcidSeq* module = nullptr;
+
+    static constexpr const char* NOTE_NAMES[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
+    void draw(const DrawArgs& args) override {
+        NVGcontext* vg = args.vg;
+
+        // Background
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.f);
+        nvgFillColor(vg, nvgRGB(0x0a, 0x0a, 0x0a));
+        nvgFill(vg);
+
+        // Border
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 3.f);
+        nvgStrokeColor(vg, nvgRGB(0x33, 0x33, 0x33));
+        nvgStrokeWidth(vg, 1.f);
+        nvgStroke(vg);
+
+        int patternLength = module ? module->cachedPatternLength : 16;
+        int currentStep = module ? module->currentStep : -1;
+
+        // Auto-follow: calculate which page of 16 steps to show
+        int viewOffset = 0;
+        if (currentStep >= 0) {
+            viewOffset = (currentStep / 16) * 16;  // Pages: 0-15, 16-31, 32-47, 48-63
+        }
+
+        // Layout
+        float padding = 3.f;
+        float barAreaWidth = box.size.x - padding * 2;
+        float barWidth = barAreaWidth / 16.f - 1.f;
+        float barMaxHeight = box.size.y - padding * 2 - 16.f;  // Leave room for indicators + page
+        float indicatorY = box.size.y - padding - 12.f;
+
+        // Draw page indicator at top-right
+        if (patternLength > 16) {
+            int currentPage = (viewOffset / 16) + 1;
+            int totalPages = (patternLength + 15) / 16;
+            char pageStr[8];
+            snprintf(pageStr, sizeof(pageStr), "%d/%d", currentPage, totalPages);
+
+            nvgFontSize(vg, 8.f);
+            nvgFontFaceId(vg, APP->window->uiFont->handle);
+            nvgFillColor(vg, nvgRGB(0x60, 0x60, 0x60));
+            nvgTextAlign(vg, NVG_ALIGN_RIGHT | NVG_ALIGN_TOP);
+            nvgText(vg, box.size.x - padding, padding, pageStr, nullptr);
+        }
+
+        for (int i = 0; i < 16; i++) {
+            int stepIndex = viewOffset + i;  // Actual step index in pattern
+            float x = padding + i * (barAreaWidth / 16.f) + 0.5f;
+
+            // Get step data
+            SequenceStep step;
+            if (module && stepIndex < MAX_STEPS) {
+                step = module->displayPattern.steps[stepIndex];
+            }
+
+            bool isRest = step.isRest();
+            bool isCurrentStep = (stepIndex == currentStep);
+            bool isOutsidePattern = (stepIndex >= patternLength);
+
+            // Draw bar background (dim for steps outside pattern length)
+            nvgBeginPath(vg);
+            nvgRect(vg, x, padding, barWidth, barMaxHeight);
+            if (isOutsidePattern) {
+                nvgFillColor(vg, nvgRGB(0x15, 0x15, 0x15));
+            } else {
+                nvgFillColor(vg, nvgRGB(0x1a, 0x1a, 0x1a));
+            }
+            nvgFill(vg);
+
+            if (!isRest && !isOutsidePattern) {
+                // Calculate bar height based on note (0-6 range typically)
+                float noteHeight = (step.note + 1) / 7.f;  // Normalize to 0-1
+                noteHeight = std::min(1.f, std::max(0.15f, noteHeight));  // Clamp with minimum visibility
+
+                // Octave affects brightness
+                float octaveBrightness = 0.6f + step.octave * 0.2f;
+                octaveBrightness = std::min(1.f, std::max(0.4f, octaveBrightness));
+
+                float barHeight = noteHeight * barMaxHeight;
+                float barY = padding + barMaxHeight - barHeight;
+
+                // Bar color - cyan/teal, brighter for current step
+                NVGcolor barColor;
+                if (isCurrentStep) {
+                    barColor = nvgRGB(0x79, 0xd8, 0xb9);  // Bright cyan
+                } else {
+                    int brightness = (int)(0x50 * octaveBrightness);
+                    barColor = nvgRGB(brightness, (int)(0x90 * octaveBrightness), (int)(0x80 * octaveBrightness));
+                }
+
+                nvgBeginPath(vg);
+                nvgRect(vg, x, barY, barWidth, barHeight);
+                nvgFillColor(vg, barColor);
+                nvgFill(vg);
+            }
+
+            // Current step indicator (bottom line)
+            if (isCurrentStep && !isOutsidePattern) {
+                nvgBeginPath(vg);
+                nvgRect(vg, x, padding + barMaxHeight + 1, barWidth, 2.f);
+                nvgFillColor(vg, nvgRGB(0xff, 0xff, 0xff));
+                nvgFill(vg);
+            }
+
+            // Accent indicator (small dot)
+            if (!isRest && step.accent && !isOutsidePattern) {
+                float dotX = x + barWidth / 2;
+                float dotY = indicatorY;
+                nvgBeginPath(vg);
+                nvgCircle(vg, dotX, dotY, 2.f);
+                nvgFillColor(vg, isCurrentStep ? nvgRGB(0xff, 0x80, 0x40) : nvgRGB(0xaa, 0x55, 0x22));
+                nvgFill(vg);
+            }
+
+            // Slide indicator (small triangle/line below accent)
+            if (!isRest && step.slide && !isOutsidePattern) {
+                float dotX = x + barWidth / 2;
+                float dotY = indicatorY + 4.f;
+                nvgBeginPath(vg);
+                nvgMoveTo(vg, dotX - 2.f, dotY);
+                nvgLineTo(vg, dotX + 2.f, dotY);
+                nvgLineTo(vg, dotX + 4.f, dotY + 2.f);
+                nvgStrokeColor(vg, isCurrentStep ? nvgRGB(0x40, 0x80, 0xff) : nvgRGB(0x22, 0x55, 0xaa));
+                nvgStrokeWidth(vg, 1.5f);
+                nvgStroke(vg);
+            }
+        }
+    }
+};
+
+//-----------------------------------------------------------------------------
+// Scale/Root + Current Note Display Widget
+//-----------------------------------------------------------------------------
+
+struct InfoDisplay : widget::OpaqueWidget {
+    AcidSeq* module = nullptr;
+
+    static constexpr const char* NOTE_NAMES[] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+
+    static const char* getScaleAbbrev(Scale scale) {
+        switch (scale) {
+            case Scale::MAJOR: return "MAJ";
+            case Scale::MINOR: return "MIN";
+            case Scale::DORIAN: return "DOR";
+            case Scale::MIXOLYDIAN: return "MIX";
+            case Scale::LYDIAN: return "LYD";
+            case Scale::PHRYGIAN: return "PHR";
+            case Scale::LOCRIAN: return "LOC";
+            case Scale::HARMONIC_MINOR: return "H-m";
+            case Scale::HARMONIC_MAJOR: return "H-M";
+            case Scale::DORIAN_NR_4: return "D#4";
+            case Scale::PHRYGIAN_DOMINANT: return "PhD";
+            case Scale::MELODIC_MINOR: return "Mm";
+            case Scale::LYDIAN_AUGMENTED: return "L+";
+            case Scale::LYDIAN_DOMINANT: return "LD";
+            case Scale::HUNGARIAN_MINOR: return "HUN";
+            case Scale::SUPER_LOCRIAN: return "SuL";
+            case Scale::SPANISH: return "SPA";
+            case Scale::BHAIRAV: return "BHV";
+            case Scale::PENTATONIC_MINOR: return "Pm";
+            case Scale::PENTATONIC_MAJOR: return "PM";
+            case Scale::BLUES_MINOR: return "BLU";
+            case Scale::WHOLE_TONE: return "WHL";
+            case Scale::CHROMATIC: return "CHR";
+            case Scale::JAPANESE_IN_SEN: return "INS";
+            default: return "---";
+        }
+    }
+
+    void draw(const DrawArgs& args) override {
+        NVGcontext* vg = args.vg;
+
+        // Background
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, 0, 0, box.size.x, box.size.y, 2.f);
+        nvgFillColor(vg, nvgRGB(0x0a, 0x0a, 0x0a));
+        nvgFill(vg);
+
+        // Get values
+        Scale scale = module ? module->cachedScale : Scale::MINOR;
+        int rootNote = module ? module->cachedRootNote : 0;
+        int currentStep = module ? module->currentStep : -1;
+        int patternLength = module ? module->cachedPatternLength : 16;
+
+        const char* rootName = NOTE_NAMES[rootNote % 12];
+        const char* scaleName = getScaleAbbrev(scale);
+
+        // Get current playing note
+        char currentNoteStr[8] = "---";
+        if (module && currentStep >= 0 && currentStep < patternLength) {
+            SequenceStep step = module->displayPattern.steps[currentStep];
+            if (!step.isRest()) {
+                int noteInScale = step.note % 7;
+                int octave = step.octave + 4;  // Base octave
+                // Get the actual note name based on scale and root
+                int midiNote = getNoteInScale(step.note, scale, rootNote, step.octave);
+                const char* noteName = NOTE_NAMES[midiNote % 12];
+                snprintf(currentNoteStr, sizeof(currentNoteStr), "%s%d", noteName, octave);
+            }
+        }
+
+        // Draw scale/root on left
+        nvgFontSize(vg, 10.f);
+        nvgFontFaceId(vg, APP->window->uiFont->handle);
+        nvgFillColor(vg, nvgRGB(0x79, 0xd8, 0xb9));
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
+
+        char scaleStr[16];
+        snprintf(scaleStr, sizeof(scaleStr), "%s %s", rootName, scaleName);
+        nvgText(vg, 4, box.size.y / 2, scaleStr, nullptr);
+
+        // Draw current note on right (brighter)
+        nvgFillColor(vg, nvgRGB(0xff, 0xff, 0xff));
+        nvgTextAlign(vg, NVG_ALIGN_RIGHT | NVG_ALIGN_MIDDLE);
+        nvgText(vg, box.size.x - 4, box.size.y / 2, currentNoteStr, nullptr);
+    }
+};
+
+//-----------------------------------------------------------------------------
+// Module Widget (Panel UI) - 12HP version for 4ms Metamodule
 //-----------------------------------------------------------------------------
 
 struct AcidSeqWidget : ModuleWidget {
@@ -514,46 +771,67 @@ struct AcidSeqWidget : ModuleWidget {
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
         addChild(createWidget<ScrewSilver>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
 
-        // Layout constants for 8HP (40.64mm width)
-        const float COL1 = 10.16f;  // Left column center
-        const float COL2 = 30.48f;  // Right column center
-        const float CENTER = 20.32f;  // Module center
+        // Layout constants for 12HP (60.96mm width)
+        const float COL1 = 12.f;     // Left column
+        const float COL2 = 30.48f;   // Center column
+        const float COL3 = 49.f;     // Right column
+        const float CENTER = 30.48f; // Module center
 
-        // === Row 1: Density & Length ===
+        // === Row 1: Main knobs (Density, Spread, Length) ===
         addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL1, 20)), module, AcidSeq::PARAM_DENSITY));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL2, 20)), module, AcidSeq::PARAM_PATTERN_LENGTH));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL2, 20)), module, AcidSeq::PARAM_SPREAD));
+        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL3, 20)), module, AcidSeq::PARAM_PATTERN_LENGTH));
 
-        // === Row 2: Spread & Scale ===
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_SPREAD));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL2, 38)), module, AcidSeq::PARAM_SCALE));
+        // === Row 2: Small knobs (Acc, Sld, Root, Scale) ===
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_ACCENT_DENSITY));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(24, 38)), module, AcidSeq::PARAM_SLIDE_DENSITY));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(37, 38)), module, AcidSeq::PARAM_ROOT_NOTE));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL3, 38)), module, AcidSeq::PARAM_SCALE));
 
-        // === Row 3: Accent/Slide & Root/Octave ===
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL1 - 5, 54)), module, AcidSeq::PARAM_ACCENT_DENSITY));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL1 + 5, 54)), module, AcidSeq::PARAM_SLIDE_DENSITY));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL2 - 5, 54)), module, AcidSeq::PARAM_ROOT_NOTE));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL2 + 5, 54)), module, AcidSeq::PARAM_OCTAVE));
-
-        // === Generate Button with LED (centered) ===
-        addParam(createParamCentered<VCVButton>(mm2px(Vec(CENTER, 68)), module, AcidSeq::PARAM_GENERATE));
-        addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(CENTER, 62)), module, AcidSeq::LIGHT_GENERATE));
-
-        // === Step Indicator LEDs (2 rows of 8) ===
-        for (int i = 0; i < 8; i++) {
-            float x = 5.f + i * 4.5f;
-            addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(x, 78)), module, AcidSeq::LIGHT_STEP + i));
-            addChild(createLightCentered<TinyLight<GreenLight>>(mm2px(Vec(x, 82)), module, AcidSeq::LIGHT_STEP + 8 + i));
+        // === Pattern Display (note bars with accent/slide indicators) ===
+        {
+            PatternDisplay* patternDisp = new PatternDisplay();
+            patternDisp->box.pos = mm2px(Vec(4, 46));
+            patternDisp->box.size = mm2px(Vec(52.96, 22));
+            patternDisp->module = module;
+            addChild(patternDisp);
         }
 
-        // === Inputs Row ===
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(COL1 - 5, 94)), module, AcidSeq::INPUT_CLOCK));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(COL1 + 5, 94)), module, AcidSeq::INPUT_RESET));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(CENTER, 94)), module, AcidSeq::INPUT_GENERATE));
+        // === Info Display (Scale/Root + Current Note) ===
+        {
+            InfoDisplay* infoDisp = new InfoDisplay();
+            infoDisp->box.pos = mm2px(Vec(4, 70));
+            infoDisp->box.size = mm2px(Vec(36, 7));
+            infoDisp->module = module;
+            addChild(infoDisp);
+        }
 
-        // === Outputs Row ===
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(COL1 - 5, 110)), module, AcidSeq::OUTPUT_PITCH));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(COL1 + 5, 110)), module, AcidSeq::OUTPUT_GATE));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(COL2 - 5, 110)), module, AcidSeq::OUTPUT_ACCENT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(COL2 + 5, 110)), module, AcidSeq::OUTPUT_SLIDE));
+        // === Generate Button with LED (button left, LED right) ===
+        addParam(createParamCentered<VCVButton>(mm2px(Vec(46, 73.5)), module, AcidSeq::PARAM_GENERATE));
+        addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(54, 73.5)), module, AcidSeq::LIGHT_GENERATE));
+
+        // === Octave Controls (buttons + LED indicators) ===
+        // Octave down button
+        addParam(createParamCentered<VCVButton>(mm2px(Vec(8, 82)), module, AcidSeq::PARAM_OCTAVE_DOWN));
+        // Octave up button
+        addParam(createParamCentered<VCVButton>(mm2px(Vec(20, 82)), module, AcidSeq::PARAM_OCTAVE_UP));
+
+        // Octave LED indicators (-2, -1, 0, +1, +2)
+        for (int i = 0; i < 5; i++) {
+            float x = 30.f + i * 5.5f;
+            addChild(createLightCentered<SmallLight<GreenLight>>(mm2px(Vec(x, 82)), module, AcidSeq::LIGHT_OCTAVE + i));
+        }
+
+        // === Inputs Row (well-spaced) ===
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 97)), module, AcidSeq::INPUT_CLOCK));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(24, 97)), module, AcidSeq::INPUT_RESET));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(38, 97)), module, AcidSeq::INPUT_GENERATE));
+
+        // === Outputs Row (well-spaced) ===
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(10, 113)), module, AcidSeq::OUTPUT_PITCH));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(24, 113)), module, AcidSeq::OUTPUT_GATE));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(38, 113)), module, AcidSeq::OUTPUT_ACCENT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(51, 113)), module, AcidSeq::OUTPUT_SLIDE));
     }
 
     // Context menu for scale selection
@@ -576,4 +854,4 @@ struct AcidSeqWidget : ModuleWidget {
     }
 };
 
-Model* modelAcidSeq = createModel<AcidSeq, AcidSeqWidget>("AcidGen");
+Model* modelAcidSeq = createModel<AcidSeq, AcidSeqWidget>("AcidGenMini");
