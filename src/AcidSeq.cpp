@@ -778,15 +778,15 @@ struct AcidSeqWidget : ModuleWidget {
         const float CENTER = 30.48f; // Module center
 
         // === Row 1: Main knobs (Density, Spread, Length) ===
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL1, 20)), module, AcidSeq::PARAM_DENSITY));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL2, 20)), module, AcidSeq::PARAM_SPREAD));
-        addParam(createParamCentered<RoundBlackKnob>(mm2px(Vec(COL3, 20)), module, AcidSeq::PARAM_PATTERN_LENGTH));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL1, 20)), module, AcidSeq::PARAM_DENSITY));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL2, 20)), module, AcidSeq::PARAM_SPREAD));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL3, 20)), module, AcidSeq::PARAM_PATTERN_LENGTH));
 
         // === Row 2: Small knobs (Acc, Sld, Root, Scale) ===
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_ACCENT_DENSITY));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(24, 38)), module, AcidSeq::PARAM_SLIDE_DENSITY));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(37, 38)), module, AcidSeq::PARAM_ROOT_NOTE));
-        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL3, 38)), module, AcidSeq::PARAM_SCALE));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_ACCENT_DENSITY));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(24, 38)), module, AcidSeq::PARAM_SLIDE_DENSITY));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(37, 38)), module, AcidSeq::PARAM_ROOT_NOTE));
+        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL3, 38)), module, AcidSeq::PARAM_SCALE));
 
         // === Pattern Display (note bars with accent/slide indicators) ===
         {
@@ -812,9 +812,9 @@ struct AcidSeqWidget : ModuleWidget {
 
         // === Octave Controls (buttons + LED indicators) ===
         // Octave down button
-        addParam(createParamCentered<VCVButton>(mm2px(Vec(8, 82)), module, AcidSeq::PARAM_OCTAVE_DOWN));
+        addParam(createParamCentered<TL1105>(mm2px(Vec(8, 82)), module, AcidSeq::PARAM_OCTAVE_DOWN));
         // Octave up button
-        addParam(createParamCentered<VCVButton>(mm2px(Vec(20, 82)), module, AcidSeq::PARAM_OCTAVE_UP));
+        addParam(createParamCentered<TL1105>(mm2px(Vec(20, 82)), module, AcidSeq::PARAM_OCTAVE_UP));
 
         // Octave LED indicators (-2, -1, 0, +1, +2)
         for (int i = 0; i < 5; i++) {
