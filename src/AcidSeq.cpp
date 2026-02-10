@@ -763,7 +763,7 @@ struct InfoDisplay : widget::OpaqueWidget {
 struct AcidSeqWidget : ModuleWidget {
     AcidSeqWidget(AcidSeq* module) {
         setModule(module);
-        setPanel(createPanel(asset::plugin(pluginInstance, "res/AcidGen.svg")));
+        setPanel(createPanel(asset::plugin(pluginInstance, "res/AcidGenMini.svg")));
 
         // Screws
         addChild(createWidget<ScrewSilver>(Vec(RACK_GRID_WIDTH, 0)));
