@@ -783,10 +783,10 @@ struct AcidSeqWidget : ModuleWidget {
         addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL3, 20)), module, AcidSeq::PARAM_PATTERN_LENGTH));
 
         // === Row 2: Small knobs (Acc, Sld, Root, Scale) ===
-        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_ACCENT_DENSITY));
-        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(24, 38)), module, AcidSeq::PARAM_SLIDE_DENSITY));
-        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(37, 38)), module, AcidSeq::PARAM_ROOT_NOTE));
-        addParam(createParamCentered<Rogan1PWhite>(mm2px(Vec(COL3, 38)), module, AcidSeq::PARAM_SCALE));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL1, 38)), module, AcidSeq::PARAM_ACCENT_DENSITY));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(24, 38)), module, AcidSeq::PARAM_SLIDE_DENSITY));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(37, 38)), module, AcidSeq::PARAM_ROOT_NOTE));
+        addParam(createParamCentered<RoundSmallBlackKnob>(mm2px(Vec(COL3, 38)), module, AcidSeq::PARAM_SCALE));
 
         // === Pattern Display (note bars with accent/slide indicators) ===
         {
@@ -823,15 +823,15 @@ struct AcidSeqWidget : ModuleWidget {
         }
 
         // === Inputs Row (well-spaced) ===
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 100)), module, AcidSeq::INPUT_CLOCK));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(24, 100)), module, AcidSeq::INPUT_RESET));
-        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(38, 100)), module, AcidSeq::INPUT_GENERATE));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(10, 98.4125)), module, AcidSeq::INPUT_CLOCK));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(24, 98.4125)), module, AcidSeq::INPUT_RESET));
+        addInput(createInputCentered<PJ301MPort>(mm2px(Vec(38, 98.4125)), module, AcidSeq::INPUT_GENERATE));
 
         // === Outputs Row (well-spaced) ===
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(10, 117)), module, AcidSeq::OUTPUT_PITCH));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(24, 117)), module, AcidSeq::OUTPUT_GATE));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(38, 117)), module, AcidSeq::OUTPUT_ACCENT));
-        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(51, 117)), module, AcidSeq::OUTPUT_SLIDE));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(10, 114)), module, AcidSeq::OUTPUT_PITCH));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(24, 114)), module, AcidSeq::OUTPUT_GATE));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(38, 114)), module, AcidSeq::OUTPUT_ACCENT));
+        addOutput(createOutputCentered<PJ301MPort>(mm2px(Vec(51, 114)), module, AcidSeq::OUTPUT_SLIDE));
     }
 
     // Context menu for scale selection
